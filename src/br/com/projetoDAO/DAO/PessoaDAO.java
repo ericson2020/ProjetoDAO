@@ -13,6 +13,7 @@ public class PessoaDAO {
     ResultSet rs = null;
 
     public boolean consulta() {
+        
         String sql = "select * from pessoa";
 
         con = conexao.conectar();
@@ -22,7 +23,6 @@ public class PessoaDAO {
             System.out.printf("%-5s|%-50s|%-20s\n", "Id", "Nome", "Profissao");
             while (rs.next()) {
                 System.out.printf("%-5s|%-50s|%-20s\n", rs.getInt(1), rs.getString(2), rs.getString(3));
-
             }
             return true;
         } catch (Exception e) {
@@ -42,6 +42,7 @@ public class PessoaDAO {
             pst = con.prepareStatement(sql);
             pst.setString(1, p.getNome());
             pst.setString(2, p.getProfissao());
+            
             int r = pst.executeUpdate();
             if (r > 0) {
                 System.out.printf("Dados Inseridos Com Sucesso");
@@ -57,12 +58,13 @@ public class PessoaDAO {
     }
 
     public boolean editar(Pessoa p) {
-        String sql = "update pessoa set nome = ?, profissao = ? where id = 2";
+        String sql = "update pessoa set nome = ?, profissao = ? where id = ?";
         con = conexao.conectar();
         try {
             pst = con.prepareStatement(sql);
             pst.setString(1, p.getNome());
             pst.setString(2, p.getProfissao());
+            pst.setInt(3, p.getId());
             int r = pst.executeUpdate();
             if (r > 0) {
                 System.out.printf("Dados Atualizado Com Sucesso");
@@ -77,11 +79,12 @@ public class PessoaDAO {
         }
     }
 
-    public boolean excluir() {
-        String sql = "delete from pessoa where id = 4";
+    public boolean excluir(int id) {
+        String sql = "delete from pessoa where id = ?";
         con = conexao.conectar();
         try {
             pst = con.prepareStatement(sql);            
+            pst.setInt(1, id);
             pst.executeUpdate();
             
             return true;
@@ -93,4 +96,28 @@ public class PessoaDAO {
             conexao.desconectar(con);
         }
     }
+    public boolean consultaporId(int id) {
+        String sql = "Select * from pessoa where id = ?";
+
+        con = conexao.conectar();
+
+        try {
+            pst = con.prepareStatement(sql);
+            pst.setInt(1, id);
+            rs = pst.executeQuery();
+
+            System.out.printf("%-5s|%-50s|%-20s\n", "ID", "Nome", "Profissao");
+            while (rs.next()) {
+
+                System.out.printf("%-5s|%-50s|%-20s\n", rs.getInt(1), rs.getString(2), rs.getString(3));
+            }
+            return true;
+        } catch (Exception e) {
+            System.out.println("Não foi possível acessar os dados: " + e);
+            return false;
+        } finally {
+            conexao.desconectar(con);
+        }
+    }
+    
 }
